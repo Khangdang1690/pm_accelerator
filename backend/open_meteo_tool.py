@@ -35,6 +35,20 @@ WMO_CODES = {
 
 def _get_coordinates(location: str) -> tuple[float, float] | None:
     """Helper function to get latitude and longitude for a location."""
+    # Check if location is already coordinates (lat, lon format)
+    if ',' in location:
+        try:
+            parts = location.strip().split(',')
+            if len(parts) == 2:
+                lat = float(parts[0].strip())
+                lon = float(parts[1].strip())
+                # Validate coordinate ranges
+                if -90 <= lat <= 90 and -180 <= lon <= 180:
+                    return lat, lon
+        except ValueError:
+            pass  # Not valid coordinates, continue with geocoding
+    
+    # If not coordinates, use geocoding API
     try:
         response = requests.get(
             f"https://geocoding-api.open-meteo.com/v1/search?name={location}&count=1&format=json"
@@ -56,7 +70,7 @@ def get_weather_forecast(location: str, units: str = "metric", forecast_days: in
     Fetches the current weather and a brief forecast for a specified location using the Open-Meteo API.
 
     Args:
-        location (str): The city and optionally country (e.g., "Berlin, Germany").
+        location (str): The city and optionally country (e.g., "Berlin, Germany") or coordinates (e.g., "40.7128, -74.0060").
         units (str): Temperature units ('metric' for Celsius, 'imperial' for Fahrenheit). Default 'metric'.
         forecast_days (int): Number of days for the forecast (1-7). Default 1.
     
@@ -68,6 +82,18 @@ def get_weather_forecast(location: str, units: str = "metric", forecast_days: in
         return f"Could not find coordinates for {location}."
 
     latitude, longitude = coordinates
+    
+    # Determine display location name
+    if ',' in location and len(location.split(',')) == 2:
+        try:
+            # Check if it's coordinates
+            float(location.split(',')[0].strip())
+            float(location.split(',')[1].strip())
+            display_location = f"coordinates {latitude:.4f}, {longitude:.4f}"
+        except ValueError:
+            display_location = location
+    else:
+        display_location = location
     
     temperature_unit = "fahrenheit" if units == "imperial" else "celsius"
     wind_speed_unit = "mph" if units == "imperial" else "kmh"
@@ -96,7 +122,7 @@ def get_weather_forecast(location: str, units: str = "metric", forecast_days: in
         daily = data.get("daily")
 
         if not current:
-            return f"Could not retrieve current weather data for {location}."
+            return f"Could not retrieve current weather data for {display_location}."
 
         current_temp = current.get('temperature_2m')
         apparent_temp = current.get('apparent_temperature')
@@ -113,7 +139,7 @@ def get_weather_forecast(location: str, units: str = "metric", forecast_days: in
         precip_symbol = "in" if units == "imperial" else "mm"
 
         result = (
-            f"Current weather in {location} ({is_day_text}):\n"
+            f"Current weather in {display_location} ({is_day_text}):\n"
             f"- Temperature: {current_temp}{temp_symbol} (Feels like: {apparent_temp}{temp_symbol})\n"
             f"- Humidity: {humidity}%\n"
             f"- Condition: {current_weather_desc} (WMO Code: {current_weather_code})\n"
@@ -139,9 +165,9 @@ def get_weather_forecast(location: str, units: str = "metric", forecast_days: in
         return result.strip()
 
     except requests.exceptions.RequestException as e:
-        return f"Error fetching weather data for {location}: {e}"
+        return f"Error fetching weather data for {display_location}: {e}"
     except (KeyError, IndexError) as e:
-        return f"Error parsing weather data for {location}: Missing expected data. {e}"
+        return f"Error parsing weather data for {display_location}: Missing expected data. {e}"
 
 if __name__ == '__main__':
     # Example Usage:

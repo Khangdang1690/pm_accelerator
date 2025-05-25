@@ -1,0 +1,10 @@
+agno
+fastapi
+uvicorn
+pydantic
+requests
+google-generativeai
+python-dotenv
+reportlab
+markdown
+googlemaps 
