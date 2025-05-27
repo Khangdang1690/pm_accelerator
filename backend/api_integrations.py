@@ -25,8 +25,8 @@ class APIIntegrations:
         self.google_maps_api_key = os.getenv('GOOGLE_MAPS_API_KEY')
         
         # Check if we have valid API keys
-        self.has_valid_youtube_key = bool(self.youtube_api_key)
-        self.has_valid_maps_key = bool(self.google_maps_api_key)
+        self.has_valid_youtube_key = self.youtube_api_key 
+        self.has_valid_maps_key = self.google_maps_api_key
         
         # Initialize Agno agent with SerpAPI tools for YouTube search
         # Note: SerpApiTools requires SERPAPI_API_KEY environment variable
