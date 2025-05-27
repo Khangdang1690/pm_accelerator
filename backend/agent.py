@@ -39,7 +39,7 @@ data_exporter = DataExporter()
 
 basic_agent = Agent(
     name="Weather Assistant",
-    model=Gemini(id="gemini-2.0-flash",api_key=os.getenv("GOOGLE_GEMINI_API_KEY")),
+    model=Gemini(id="gemini-2.0-flash", api_key=os.getenv("GOOGLE_API_KEY")),
     tools=[
         DuckDuckGoTools(), 
         get_weather_forecast

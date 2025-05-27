@@ -165,3 +165,115 @@ The application includes comprehensive error handling:
 - Detailed error messages for debugging
 - Automatic retry mechanisms for external API calls
 - Validation for all input data 
+
+# API Integrations Setup
+
+This module provides integration with YouTube and Google Maps APIs through both direct API calls and Agno tools.
+
+## Quick Fix for YouTube Feature
+
+The YouTube feature was returning fake URLs because it was using fallback data. Here's how to fix it:
+
+### Option 1: Use SerpAPI for YouTube Search (Recommended)
+
+1. **Get a SerpAPI key:**
+   - Go to [SerpAPI](https://serpapi.com/)
+   - Sign up for a free account (100 searches/month free)
+   - Get your API key from the dashboard
+
+2. **Set the environment variable:**
+   ```bash
+   # Windows (PowerShell)
+   $env:SERPAPI_API_KEY="your_serpapi_key_here"
+   
+   # Windows (Command Prompt)
+   set SERPAPI_API_KEY=your_serpapi_key_here
+   
+   # Linux/Mac
+   export SERPAPI_API_KEY=your_serpapi_key_here
+   ```
+
+3. **Install SerpAPI dependency:**
+   ```bash
+   pip install google-search-results
+   ```
+
+### Option 2: Use Direct YouTube Data API v3
+
+1. **Get a YouTube Data API v3 key:**
+   - Go to [Google Cloud Console](https://console.developers.google.com/)
+   - Create a new project or select existing one
+   - Enable "YouTube Data API v3"
+   - Create credentials (API Key)
+
+2. **Set the environment variable:**
+   ```bash
+   # Windows (PowerShell)
+   $env:YOUTUBE_API_KEY="your_actual_api_key_here"
+   
+   # Windows (Command Prompt)
+   set YOUTUBE_API_KEY=your_actual_api_key_here
+   
+   # Linux/Mac
+   export YOUTUBE_API_KEY=your_actual_api_key_here
+   ```
+
+## API Keys Required
+
+### SerpAPI (Recommended for YouTube)
+- **Purpose:** Search YouTube videos using SerpAPI
+- **Get it from:** [SerpAPI](https://serpapi.com/) (100 free searches/month)
+- **Environment variable:** `SERPAPI_API_KEY`
+
+### YouTube Data API v3 (Alternative)
+- **Purpose:** Direct YouTube video search
+- **Get it from:** [Google Cloud Console](https://console.developers.google.com/)
+- **Environment variable:** `YOUTUBE_API_KEY`
+
+### Google Maps API
+- **Purpose:** Location data, directions, places
+- **Get it from:** [Google Cloud Console](https://console.cloud.google.com/)
+- **Environment variable:** `GOOGLE_MAPS_API_KEY`
+- **Required APIs to enable:**
+  - Places API
+  - Directions API
+  - Geocoding API
+  - Maps JavaScript API
+
+## Testing
+
+Run the test script to check your setup:
+
+```bash
+cd backend
+python test_youtube.py
+```
+
+This will show you:
+- ✓ Which API keys are configured
+- ✓ Whether Agno tools are available
+- ✓ Sample API calls with real results
+
+## Current Implementation
+
+The system now:
+1. **First tries Agno SerpAPI tools** (if SERPAPI_API_KEY is configured)
+2. **Falls back to direct YouTube Data API calls** (if YOUTUBE_API_KEY is configured)
+3. **Returns error message** (if no valid API keys are configured)
+
+No more fake URLs like `https://youtube.com/watch?v=example_Tokyo`!
+
+## Troubleshooting
+
+### "YouTube API unavailable" error
+- Check that `YOUTUBE_API_KEY` environment variable is set
+- Verify your API key is valid and has YouTube Data API v3 enabled
+- Check API quotas in Google Cloud Console
+
+### "Agno YouTube tools not available" warning
+- Install Agno: `pip install agno`
+- This is just a warning - direct API calls will still work
+
+### Rate limits
+- YouTube API has daily quotas
+- Consider implementing caching for production use 
